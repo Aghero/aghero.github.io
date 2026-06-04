@@ -93,7 +93,7 @@
   align-items: center;
   gap: 6px;
   transition: all 0.15s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 .theme-toggle:hover {
   background: var(--color-background-secondary);
@@ -198,6 +198,10 @@ h2 {
   align-items: center;
   gap: 5px;
   flex-wrap: wrap;
+}
+
+.item-detail {
+  display: none;
 }
 
 .tier-badge {
@@ -305,7 +309,7 @@ h2 {
   justify-content: center;
   font-size: 10px;
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -364,6 +368,12 @@ h2 {
   flex-wrap: wrap;
 }
 
+.item-list-entry {
+  font-size: 12px;
+  color: var(--color-text-primary);
+  padding: 4px 0;
+}
+
 .class-pill {
   padding: 2px 8px;
   border-radius: 20px;
@@ -397,7 +407,7 @@ h2 {
 }
 
 .page-header h1 {
-  font-size: 24px;
+  font-size: 22px;
   margin-bottom: 8px;
 }
 
@@ -769,10 +779,12 @@ h2 {
 }
 
 .empty-state {
+  margin-bottom: 8px;
+  opacity: 0.3;
   padding: 2rem;
   text-align: center;
   color: var(--color-text-secondary);
-  font-size: 13px;
+  font-size: 22px;
 }
 
 .global-section {

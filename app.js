@@ -5,18 +5,13 @@ const FUSION_GOLD = {
   3: [4e6, 10e6, 20e6], // T1,T2,T3 only
   4: [8e6, 20e6, 40e6, 65e6, 100e6, 250e6, 750e6, 2500e6, 8000e6, 15000e6],
 };
-const CONV_GOLD = [
-  55e6, 110e6, 170e6, 300e6, 875e6, 2350e6, 6950e6, 21250e6, 50000e6, 125000e6,
-];
-const TRANSFER_CORES = [1, 2, 5, 10, 15, 20, 25, 30, 35];
+const CONVFUSION_GOLD = [55e6, 110e6, 170e6, 300e6, 875e6, 2350e6, 6950e6, 21250e6, 50000e6, 125000e6];
+const TRANSFER_CORES = [1, 2, 5, 10, 15, 25, 35, 50, 60, 85];
 const TRANSFER_GOLD = {
   3: [10e6, 20e6, 0, 0, 0, 0, 0, 0, 0],
   4: [20e6, 40e6, 65e6, 100e6, 250e6, 750e6, 2500e6, 8000e6, 15000e6],
 };
-const CONVTRANSFER_GOLD = [
-  65e6, 165e6, 375e6, 800e6, 2000e6, 5250e6, 14500e6, 42500e6, 100000e6,
-  300000e6,
-];
+const CONVTRANSFER_GOLD = [65e6, 165e6, 375e6, 800e6, 2000e6, 5250e6, 14500e6, 42500e6, 100000e6, 300000e6];
 const CONVTRANSFER_CORES = [1, 2, 5, 10, 15, 25, 35, 50, 60, 85];
 
 let items = [],
@@ -50,8 +45,8 @@ function active() {
 }
 function fmt(n) {
   if (n === 0) return "0";
-  if (n >= 1e9) return (n / 1e9).toFixed(2).replace(/\.?0+$/, "") + "B";
-  if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.?0+$/, "") + "M";
+  if (n >= 1e9) return (n / 1e9).toFixed(2).replace(/\.?0+$/, "") + "KKK";
+  if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.?0+$/, "") + "KK";
   if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.?0+$/, "") + "K";
   return n.toString();
 }
@@ -126,38 +121,25 @@ function formatItemPriceInput() {
   else input.value = "";
 }
 
-
-function setMethod(m) {
+function setMethod(method) {
   const item = active();
   if (!item) return;
-  if ((m === "convtransfer" || m === "convfusion") && item.cls !== 4) return;
-  activeMethod = m;
+  if ((method === "convtransfer" || method === "convfusion") && item.cls !== 4) return;
+  activeMethod = method;
   document.querySelectorAll(".tab").forEach((t, i) => {
-    t.classList.toggle(
-      "active",
-      ["fusion", "convfusion", "transfer", "convtransfer"][i] === m,
-    );
+    t.classList.toggle("active", ["fusion", "convfusion", "transfer", "convtransfer"][i] === method);
   });
-  document
-    .querySelectorAll(".method-panel")
-    .forEach((p) => p.classList.remove("active"));
-  document.getElementById("panel-" + m).classList.add("active");
+  document.querySelectorAll(".method-panel").forEach((p) => p.classList.remove("active"));
+  document.getElementById("panel-" + method).classList.add("active");
   updateAllCosts();
 }
 
 function updateTabStates() {
   const item = active();
   if (!item) return;
-  document
-    .getElementById("tab-convtransfer")
-    .classList.toggle("disabled", item.cls !== 4);
-  document
-    .getElementById("tab-convfusion")
-    .classList.toggle("disabled", item.cls !== 4);
-  if (
-    item.cls === 3 &&
-    (activeMethod === "convtransfer" || activeMethod === "convfusion")
-  ) {
+  document.getElementById("tab-convtransfer").classList.toggle("disabled", item.cls !== 4);
+  document.getElementById("tab-convfusion").classList.toggle("disabled", item.cls !== 4);
+  if (item.cls === 3 && (activeMethod === "convtransfer" || activeMethod === "convfusion")) {
     activeMethod = "fusion";
     setMethod("fusion");
   }
@@ -181,17 +163,16 @@ function updateFusionCosts() {
   }
   tog.style.display = "";
   act.innerHTML = `<button class="btn success" onclick="doFusion(true)">Success</button><button class="btn fail" onclick="doFusion(false)">Fail</button>`;
-  const t = item.tier + 1;
   const uc = document.getElementById("core-chance").checked;
   const up = document.getElementById("core-protect").checked;
   const cores = (uc ? 1 : 0) + (up ? 1 : 0);
-  const gold = FUSION_GOLD[item.cls][t - 1];
+  const gold = FUSION_GOLD[item.cls][item.tier];
   el.innerHTML =
     `<div class="note purple">Requires two identical items (including the same tier). Source item gets consumed in the process. Bonus effect can kick in during fusion, but it won't. Forget about it.</div>` +
-    `<strong>Merging 2 x T${item.tier} identical items to create a <b>T${t}</b> item</strong><br>` +
+    `<strong>Merging 2 x T${item.tier} identical items to create a <b>T${item.tier + 1}</b> item</strong><br>` +
     `Success chance: <strong>${uc ? 65 : 50}%</strong><br>` +
     `Fail protection (Tier reduction/item destruction chance): <strong>${up ? "50%" : "100%"}</strong><br>` +
-    `Fee: <strong>${fmtFull(gold)} gold</strong> + <strong>1 source item (T${item.tier})</strong>${cores ? ` + <strong>${cores} core${cores > 1 ? "s" : ""}</strong>` : ""}` +
+    `Fee: <strong>${fmtFull(gold)} gold</strong> + <strong>100 Dust</strong> ${cores ? `+ <strong>${cores} core${cores > 1 ? "s" : ""}</strong>` : ""} + <strong>1 source item (T${item.tier})` +
     itemCostLine(1, item.price);
 }
 
@@ -214,13 +195,12 @@ function updateConvergenceFusionCosts() {
     act.innerHTML = "";
     return;
   }
-  const t = item.tier + 1;
   el.innerHTML =
     `<div class="note purple">Requires items of the same body slot and same tier. Source item gets consumed in the process. For items of classification 4 only. No cores needed. Always succeeds. </div>` +
-    `<strong>Merging 2 x T${item.tier} items of the same body slot to create a <b>T${t}</b> item</strong><br>` +
-    `Fee: <strong>${fmtFull(CONV_GOLD[t - 1])} gold</strong> + <strong>130 Dust</strong> + <strong>1 source item (T${item.tier})</strong>` +
+    `<strong>Merging 2 x T${item.tier} items of the same body slot to create a <b>T${item.tier + 1}</b> item</strong><br>` +
+    `Fee: <strong>${fmtFull(CONVFUSION_GOLD[item.tier - 1])} gold</strong> + <strong>130 Dust</strong> + <strong>1 source item (T${item.tier})</strong>` +
     itemCostLine(1, item.price);
-  act.innerHTML = `<button class="btn guaranteed" onclick="doConvergence()">Convergence Transfer</button>`;
+  act.innerHTML = `<button class="btn guaranteed" onclick="doConvergenceFusion()">Convergence Transfer</button>`;
 }
 
 function updateTransferCosts() {
@@ -232,24 +212,16 @@ function updateTransferCosts() {
     act.innerHTML = "";
     return;
   }
-  if (isCapped(item)) {
-    el.innerHTML = blockedMsg(item);
-    act.innerHTML = "";
-    return;
-  }
+
   if (item.tier < 2) {
     el.innerHTML = `<strong>Requires the source item to be at least <b>T2</b></strong>`;
     act.innerHTML = "";
     return;
   }
-  const idx = item.tier - 2;
-  const cores = TRANSFER_CORES[idx];
-  const gold = (TRANSFER_GOLD[item.cls] && TRANSFER_GOLD[item.cls][idx]) || 0;
+  const cores = TRANSFER_CORES[item.tier - 2];
+  const gold = (TRANSFER_GOLD[item.cls] && TRANSFER_GOLD[item.cls][item.tier - 2]) || 0;
   const extrap = item.tier >= 8 ? " <em>(extrapolated)</em>" : "";
-  const goldStr =
-    gold > 0
-      ? `<strong>${fmtFull(gold)} gold</strong> + `
-      : "<em>no gold fee</em> + ";
+  const goldStr = gold > 0 ? `<strong>${fmtFull(gold)} gold</strong> + ` : "<em>no gold fee</em> + ";
   el.innerHTML =
     `<div class="note purple">Requires the target item to be <b> T0</b>. Both items have to be of the same classification. It transfers the source item's Tier - 1. Source item gets consumed in the process. Always succeeds.</div>` +
     `<strong>Source item T${item.tier} consumed. Target item becomes <b>T${item.tier - 1}</b></strong><br>` +
@@ -269,14 +241,8 @@ function updateConvTransferCosts() {
     return;
   }
   if (item.cls !== 4) {
-    el.innerHTML =
-      "<strong>Only available for classification 4 items.</strong>";
+    el.innerHTML = "<strong>Only available for classification 4 items.</strong>";
     note.innerHTML = "";
-    act.innerHTML = "";
-    return;
-  }
-  if (isCapped(item)) {
-    el.innerHTML = blockedMsg(item);
     act.innerHTML = "";
     return;
   }
@@ -288,10 +254,91 @@ function updateConvTransferCosts() {
   el.innerHTML =
     `<div class="note purple">Transfers the Tier of the source item without Tier loss. Allows for a transfer from different body slots. For items of classification 4 only. Source item gets consumed in the process. Always succeeds.</div>` +
     `<strong>Source item T${item.tier} consumed. Target item becomes <b>T${item.tier}</b></strong><br>` +
-    `Fee: <strong>${fmtFull(CONVTRANSFER_GOLD[item.tier-1])} gold</strong> + <strong>${CONVTRANSFER_CORES[item.tier-1]} core${CONVTRANSFER_CORES[item.tier-1] > 1 ? "s" : ""}</strong> + <strong>160 Dust</strong> + <strong>1 source item</strong>` +
+    `Fee: <strong>${fmtFull(CONVTRANSFER_GOLD[item.tier - 1])} gold</strong> + <strong>${CONVTRANSFER_CORES[item.tier - 1]} core${CONVTRANSFER_CORES[item.tier - 1] > 1 ? "s" : ""}</strong> + <strong>160 Dust</strong> + <strong>1 source item</strong>` +
     itemCostLine(1, item.price);
   note.innerHTML = "";
   act.innerHTML = `<button class="btn conv-tr" onclick="doConvTransfer()">Convergence Transfer</button>`;
+}
+
+function doFusion(success) {
+  const item = active();
+  if (!item || isCapped(item)) return;
+  const upgradeCore = document.getElementById("core-chance").checked;
+  const failCore = document.getElementById("core-protect").checked;
+  const cores = (upgradeCore ? 1 : 0) + (failCore ? 1 : 0);
+  const gold = FUSION_GOLD[item.cls][item.tier];
+  item.gold += gold;
+  item.dust += 100;
+  item.cores += cores;
+  consumeItems(item, 1);
+  const itemCost = item.price ? `1 source item (${fmtFull(item.price)} gold)` : null;
+  const costs = [fmtFull(gold) + " gold", itemCost, "100 dust", cores ? cores + " core(s)" : null];
+  if (success) {
+    item.tier = item.tier + 1;
+    item.successes++;
+    addLog(item, "✓", "s", `Fusion T${item.tier - 1}+T${item.tier - 1} → T${item.tier}`, costs);
+  } else {
+    item.fails++;
+    addLog(item, "✗", "f", `Fusion T${item.tier - 1}+T${item.tier - 1} failed (tier reduction chance: ${failCore ? "50%" : "100%"})`, costs);
+    if (item.tier === 0) {
+      consumeItems(item, 1);
+      addLog(item, "-", "n", "One item destroyed", []);
+    } else {
+      item.tier = Math.max(0, item.tier - 1);
+      addLog(item, "-", "n", `One item dropped to T${item.tier}`, []);
+    }
+  }
+  refresh();
+}
+
+function doConvergenceFusion() {
+  const item = active();
+  if (!item || isCapped(item)) return;
+  const gold = CONVFUSION_GOLD[item.tier - 1];
+  item.gold += gold;
+  item.dust += 130;
+  consumeItems(item, 1);
+  const itemCost = item.price ? `1 source item (${fmtFull(item.price)} gold)` : null;
+  item.tier = item.tier + 1;
+  item.successes++;
+  addLog(item, "✓", "g", `Convergence fusion → T${item.tier - 1}`, [fmtFull(gold) + " gold", itemCost, "130 dust"].filter(Boolean));
+  refresh();
+}
+
+function doTransfer() {
+  const item = active();
+  if (!item || item.tier + 1 < 2) return;
+  const cores = TRANSFER_CORES[item.tier - 1];
+  const gold = (TRANSFER_GOLD[item.cls] && TRANSFER_GOLD[item.cls][item.tier - 2]) || 0;
+  item.gold += gold;
+  item.dust += 100;
+  item.cores += cores;
+  consumeItems(item, 1);
+  if (!isCapped(item)) {
+    item.tier = item.tier + 1;
+  }
+  item.successes++;
+  const itemCost = item.price ? `1 item (${fmtFull(item.price)} gold)` : null;
+  addLog(item, "↔", "g", `Transfer T${item.tier + 1} → receiver T${item.tier + 1}`, [gold ? fmtFull(gold) + " gold" : null, itemCost, cores ? cores + " core(s)" : null, "100 dust"].filter(Boolean));
+  refresh();
+}
+
+function doConvTransfer() {
+  const item = active();
+  if (!item || item.cls !== 4) return;
+  const gold = CONVTRANSFER_GOLD[item.tier - 1];
+  const cores = CONVTRANSFER_CORES[item.tier - 1];
+  item.gold += gold;
+  item.dust += 160;
+  item.cores += cores;
+  consumeItems(item, 1);
+  if (!isCapped(item)) {
+    item.tier = item.tier + 1;
+  }
+  item.successes++;
+  const itemCost = item.price ? `1 item (${fmtFull(item.price)} gold)` : null;
+  addLog(item, "↔", "p", `Conv. transfer T${item.tier - 1} → receiver T${item.tier + 1} (no loss)`, [fmtFull(gold) + " gold", itemCost, cores + " core(s)", "160 dust"].filter(Boolean));
+  refresh();
 }
 
 function updateAllCosts() {
@@ -302,19 +349,13 @@ function updateAllCosts() {
 }
 
 function addLog(item, badge, bt, detail, costs) {
-  item.log.unshift({
-    badge,
-    bt,
-    detail,
-    costsStr: costs.filter(Boolean).join(" · "),
-  });
+  item.log.unshift({ badge, bt, detail, costsStr: costs.filter(Boolean).join(" · ") });
 }
 
 function renderItemList() {
   const el = document.getElementById("itemList");
   if (!items.length) {
-    el.innerHTML =
-      '<div style="font-size:12px;color:var(-color-text-secondary);padding:4px 0">No items yet.</div>';
+    el.innerHTML = '<div class="item-list-entry">No items yet.</div>';
     return;
   }
   const slots = [...new Set(items.map((i) => i.slot))];
@@ -364,12 +405,9 @@ function renderTierBar(item) {
       d.textContent = "-";
       d.title = `Classification ${item.cls} cap: T${cap}`;
     } else {
-      d.className =
-        "tier-pip" +
-        (i < item.tier ? " done" : i === item.tier ? " current" : " locked");
+      d.className = "tier-pip" + (i < item.tier ? " done" : i === item.tier ? " current" : " locked");
       d.textContent = `T${i}`;
-      const t = i;
-      d.onclick = () => setTierManual(t);
+      d.onclick = () => setTierManual(i);
     }
     bar.appendChild(d);
   }
@@ -401,30 +439,25 @@ function renderItemLog(item) {
     return;
   }
   1;
-  w.innerHTML = item.log
-    .map(
-      (e) =>
-        `<div class="log-entry"><span class="log-badge ${e.bt}">${e.badge}</span><span class="log-detail">${e.detail}</span><span class="log-costs">${e.costsStr}</span></div>`,
-    )
-    .join("");
+  w.innerHTML = item.log.map((e) => `<div class="log-entry"><span class="log-badge ${e.bt}">${e.badge}</span><span class="log-detail">${e.detail}</span><span class="log-costs">${e.costsStr}</span></div>`).join("");
 }
 
 function renderGlobalMetrics() {
   const fees = items.reduce((a, i) => a + i.gold, 0);
-  const ig = items.reduce((a, i) => a + i.itemGold, 0);
-  const total = fees + ig;
-  const d = items.reduce((a, i) => a + i.dust, 0);
-  const c = items.reduce((a, i) => a + i.cores, 0);
-  const u = items.reduce((a, i) => a + i.itemsUsed, 0);
-  const s = items.reduce((a, i) => a + i.successes, 0);
-  const f = items.reduce((a, i) => a + i.fails, 0);
+  const itemGold = items.reduce((a, i) => a + i.itemGold, 0);
+  const total = fees + itemGold;
+  const dust = items.reduce((a, i) => a + i.dust, 0);
+  const cores = items.reduce((a, i) => a + i.cores, 0);
+  const itemsUsed = items.reduce((a, i) => a + i.itemsUsed, 0);
+  const successes = items.reduce((a, i) => a + i.successes, 0);
+  const fails = items.reduce((a, i) => a + i.fails, 0);
   document.getElementById("globalMetrics").innerHTML = `
-    <div class="metric"><div class="metric-label">Total gold</div><div class="metric-val gold" title="${fmtFull(total)} gold">${fmt(total)}</div><div class="metric-sub">fees ${fmt(fees)} + items ${fmt(ig)}</div></div>
-    <div class="metric"><div class="metric-label">Dust</div><div class="metric-val blue">${d.toLocaleString()}</div></div>
-    <div class="metric"><div class="metric-label">Cores</div><div class="metric-val blue">${c.toLocaleString()}</div></div>
-    <div class="metric"><div class="metric-label">Items used</div><div class="metric-val">${u.toLocaleString()}</div></div>
-    <div class="metric"><div class="metric-label">Successes</div><div class="metric-val green">${s}</div></div>
-    <div class="metric"><div class="metric-label">Fails</div><div class="metric-val red">${f}</div></div>
+    <div class="metric"><div class="metric-label">Total gold</div><div class="metric-val gold" title="${fmtFull(total)} gold">${fmt(total)}</div><div class="metric-sub">fees ${fmt(fees)} + items ${fmt(itemGold)}</div></div>
+    <div class="metric"><div class="metric-label">Dust</div><div class="metric-val blue">${dust.toLocaleString()}</div></div>
+    <div class="metric"><div class="metric-label">Cores</div><div class="metric-val blue">${cores.toLocaleString()}</div></div>
+    <div class="metric"><div class="metric-label">Items used</div><div class="metric-val">${itemsUsed.toLocaleString()}</div></div>
+    <div class="metric"><div class="metric-label">Successes</div><div class="metric-val green">${successes}</div></div>
+    <div class="metric"><div class="metric-label">Fails</div><div class="metric-val red">${fails}</div></div>
     <div class="metric"><div class="metric-label">Items tracked</div><div class="metric-val purple">${items.length}</div></div>`;
 }
 
@@ -436,122 +469,6 @@ function refresh() {
 function consumeItems(item, count) {
   item.itemsUsed += count;
   item.itemGold += count * item.price;
-}
-
-function doFusion(success) {
-  const item = active();
-  if (!item || isCapped(item)) return;
-  const t = item.tier + 1;
-  const uc = document.getElementById("core-chance").checked;
-  const up = document.getElementById("core-protect").checked;
-  const cores = (uc ? 1 : 0) + (up ? 1 : 0);
-  const gold = FUSION_GOLD[item.cls][t - 1];
-  item.gold += gold;
-  item.cores += cores;
-  consumeItems(item, 1);
-  const ics = item.price ? `1 source item (${fmtFull(item.price)} gold)` : null;
-  const costs = [
-    fmtFull(gold) + " gold",
-    ics,
-    cores ? cores + " core(s)" : null,
-  ];
-  if (success) {
-    item.tier = t;
-    item.successes++;
-    addLog(item, "✓", "s", `Fusion T${t - 1}+T${t - 1} → T${t}`, costs);
-  } else {
-    item.fails++;
-    addLog(
-      item,
-      "✗",
-      "f",
-      `Fusion T${t - 1}+T${t - 1} failed (tier reduction chance: ${up ? "50%" : "100%"})`,
-      costs,
-    );
-    if (item.tier === 0) {
-      consumeItems(item, 1);
-      addLog(item, "-", "n", "One item destroyed", []);
-    } else {
-      item.tier = Math.max(0, item.tier - 1);
-      addLog(item, "-", "n", `One item dropped to T${item.tier}`, []);
-    }
-  }
-  refresh();
-}
-
-function doConvergence() {
-  const item = active();
-  if (!item || isCapped(item)) return;
-  const t = item.tier + 1;
-  const gold = CONV_GOLD[t - 1];
-  item.gold += gold;
-  item.dust += 130;
-  consumeItems(item, 1);
-  const ics = item.price ? `1 source item (${fmtFull(item.price)} gold)` : null;
-  item.tier = t;
-  item.successes++;
-  addLog(
-    item,
-    "✓",
-    "g",
-    `Convergence fusion → T${t}`,
-    [fmtFull(gold) + " gold", ics, "130 dust"].filter(Boolean),
-  );
-  refresh();
-}
-
-function doTransfer() {
-  const item = active();
-  if (!item || isCapped(item) || item.tier + 1 < 2) return;
-  const t = item.tier + 1;
-  const idx = t - 2;
-  const cores = TRANSFER_CORES[idx];
-  const gold = (TRANSFER_GOLD[item.cls] && TRANSFER_GOLD[item.cls][idx]) || 0;
-  item.gold += gold;
-  item.dust += 100;
-  item.cores += cores;
-  consumeItems(item, 1);
-  item.tier = t - 1;
-  item.successes++;
-  const ics = item.price ? `1 item (${fmtFull(item.price)} gold)` : null;
-  addLog(
-    item,
-    "↔",
-    "g",
-    `Transfer T${t} → receiver T${t - 1}`,
-    [
-      gold ? fmtFull(gold) + " gold" : null,
-      ics,
-      cores ? cores + " core(s)" : null,
-      "100 dust",
-    ].filter(Boolean),
-  );
-  refresh();
-}
-
-function doConvTransfer() {
-  const item = active();
-  if (!item || isCapped(item) || item.cls !== 4) return;
-  const t = item.tier + 1;
-  const gold = CONVTRANSFER_GOLD[t - 2];
-  const cores = CONVTRANSFER_CORES[t - 2];
-  item.gold += gold;
-  item.dust += 160;
-  item.cores += cores;
-  consumeItems(item, 1);
-  item.tier = t;
-  item.successes++;
-  const ics = item.price ? `1 item (${fmtFull(item.price)} gold)` : null;
-  addLog(
-    item,
-    "↔",
-    "p",
-    `Conv. transfer T${t} → receiver T${t} (no loss)`,
-    [fmtFull(gold) + " gold", ics, cores + " core(s)", "160 dust"].filter(
-      Boolean,
-    ),
-  );
-  refresh();
 }
 
 function resetAll() {

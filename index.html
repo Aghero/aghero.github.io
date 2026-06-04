@@ -15,25 +15,12 @@
     <div class="wrap">
       <div class="page-header">
         <h1>Tibia Equipment Tiering Calculator</h1>
-        <p>
-          Calculate simulated Fusion, Convergance Fusion, Transfer and
-          Convergance Transfer costs
-        </p>
+        <p>Calculate simulated Fusion, Convergance Fusion, Transfer and Convergance Transfer costs</p>
       </div>
       <div class="two-col">
         <div class="item-list-panel">
           <div class="panel-title">Tracked items</div>
-          <div id="itemList">
-            <div
-              style="
-                font-size: 12px;
-                color: var(-color-text-secondary);
-                padding: 4px 0;
-              "
-            >
-              No items yet.
-            </div>
-          </div>
+          <div id="itemList"></div>
           <div class="add-item-form">
             <div class="form-label">Slot</div>
             <select id="newSlot">
@@ -51,114 +38,50 @@
             <div class="form-label">Starting tier</div>
             <select id="newTier"></select>
             <div class="form-label">Source item price (gold)</div>
-            <input
-              type="text"
-              id="newPrice"
-              placeholder="10k, 15kk"
-              min="0"
-              oninput="updateItemPrice()"
-              onblur="formatItemPriceInput()"
-            />
+            <input type="text" id="newPrice" placeholder="10k, 15kk" min="0" oninput="updateItemPrice()" onblur="formatItemPriceInput()" />
             <button onclick="addItem()">+ Add item</button>
           </div>
         </div>
 
         <div>
           <div class="empty-state" id="emptyState">
-            <div style="font-size: 28px; margin-bottom: 8px; opacity: 0.3">
-              ⚔️
-            </div>
+            <div>⚔️</div>
             Add an item on the left to start tracking
           </div>
-          <div id="itemDetail" style="display: none">
+          <div class="item-detail" id="itemDetail" >
             <div class="section">
               <div class="item-header">
                 <div>
                   <div class="item-name-display" id="detailName"></div>
-                  <div class="item-meta-pills">
-                    <span
-                      class="cap-pill"
-                      id="detailCap"
-                      style="display: none"
-                    ></span>
-                  </div>
                 </div>
-                <button class="btn danger-sm" onclick="removeActiveItem()">
-                  ✕ Remove
-                </button>
+                <button class="btn danger-sm" onclick="removeActiveItem()">✕ Remove</button>
               </div>
-
-              <div
-                id="capBanner"
-                style="display: none"
-                class="cap-banner"
-              ></div>
 
               <div class="price-row">
                 <label>Source item price:</label>
-                <input
-                  type="text"
-                  id="itemPriceInput"
-                  placeholder="10k, 15kk"
-                  min="0"
-                  oninput="updateItemPrice()"
-                  onblur="formatItemPriceInput()"
-                />
+                <input type="text" id="itemPriceInput" placeholder="10k, 15kk" min="0" oninput="updateItemPrice()" onblur="formatItemPriceInput()" />
               </div>
 
               <div class="tier-hint">Current tier of source item:</div>
               <div class="tier-bar" id="detailTierBar"></div>
 
               <div class="method-tabs">
-                <div class="tab active" onclick="setMethod('fusion')">
-                  Fusion
-                </div>
-                <div
-                  class="tab"
-                  id="tab-convfusion"
-                  onclick="setMethod('convfusion')"
-                >
-                  Convergance fusion
-                </div>
+                <div class="tab active" onclick="setMethod('fusion')">Fusion</div>
+                <div class="tab" id="tab-convfusion" onclick="setMethod('convfusion')">Convergance fusion</div>
                 <div class="tab" onclick="setMethod('transfer')">Transfer</div>
-                <div
-                  class="tab"
-                  id="tab-convtransfer"
-                  onclick="setMethod('convtransfer')"
-                >
-                  Convergance transfer
-                </div>
+                <div class="tab" id="tab-convtransfer" onclick="setMethod('convtransfer')">Convergance transfer</div>
               </div>
 
               <div class="method-panel active" id="panel-fusion">
                 <div class="cost-summary" id="fusion-costs"></div>
                 <div id="fusion-toggles">
                   <div class="toggle-row">
-                    <label class="toggle"
-                      ><input
-                        type="checkbox"
-                        id="core-chance"
-                        onchange="updateAllCosts()" /><span
-                        class="slider-tog"
-                      ></span
-                    ></label>
-                    <span
-                      >+1 Exalted Core: 50% → 65% succes chance increase</span
-                    >
+                    <label class="toggle"><input type="checkbox" id="core-chance" onchange="updateAllCosts()" /><span class="slider-tog"></span></label>
+                    <span>+1 Exalted Core: 50% → 65% succes chance increase</span>
                   </div>
                   <div class="toggle-row">
-                    <label class="toggle"
-                      ><input
-                        type="checkbox"
-                        id="core-protect"
-                        onchange="updateAllCosts()" /><span
-                        class="slider-tog"
-                      ></span
-                    ></label>
-                    <span
-                      >+1 Exalted Core: 100% → 50% tier reduction/item
-                      destruction chance decrease</span
-                    >
+                    <label class="toggle"><input type="checkbox" id="core-protect" onchange="updateAllCosts()" /><span class="slider-tog"></span></label>
+                    <span>+1 Exalted Core: 100% → 50% tier reduction/item destruction chance decrease</span>
                   </div>
                 </div>
                 <div class="action-row" id="fusion-actions"></div>
@@ -192,9 +115,7 @@
       <div class="global-section">
         <div class="global-section-title">
           <span>All items - combined tally</span>
-          <button class="btn danger-sm" onclick="resetAll()">
-            ↺ Reset all
-          </button>
+          <button class="btn danger-sm" onclick="resetAll()">↺ Reset all</button>
         </div>
         <div class="metrics-grid" id="globalMetrics"></div>
         <div class="section">
