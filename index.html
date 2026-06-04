@@ -52,11 +52,12 @@
             <select id="newTier"></select>
             <div class="form-label">Source item price (gold)</div>
             <input
-              type="number"
+              type="text"
               id="newPrice"
-              placeholder="0"
+              placeholder="10k, 15kk"
               min="0"
               oninput="updateItemPrice()"
+              onblur="formatItemPriceInput()"
             />
             <button onclick="addItem()">+ Add item</button>
           </div>
@@ -96,11 +97,12 @@
               <div class="price-row">
                 <label>Source item price:</label>
                 <input
-                  type="number"
+                  type="text"
                   id="itemPriceInput"
-                  placeholder="0"
+                  placeholder="10k, 15kk"
                   min="0"
                   oninput="updateItemPrice()"
+                  onblur="formatItemPriceInput()"
                 />
               </div>
 

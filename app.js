@@ -59,8 +59,19 @@ function fmtFull(n) {
   return n.toLocaleString();
 }
 function parsePrice(v) {
-  const n = parseFloat(v);
-  return isNaN(n) || n < 0 ? 0 : Math.round(n);
+  if (!v && v !== 0) return 0;
+  const s = String(v).trim().toLowerCase().replace(/\s+/g, "").replace(/,/g, "");
+  let multiplier = 1;
+  let num = s;
+  if (s.endsWith("kk")) {
+    multiplier = 1_000_000;
+    num = s.slice(0, -2);
+  } else if (s.endsWith("k")) {
+    multiplier = 1_000;
+    num = s.slice(0, -1);
+  }
+  const n = parseFloat(num);
+  return isNaN(n) || n < 0 ? 0 : Math.round(n * multiplier);
 }
 function isCapped(item) {
   return item.tier >= maxTier(item.cls);
@@ -106,6 +117,15 @@ function updateItemPrice() {
   updateAllCosts();
   renderItemList();
 }
+
+function formatItemPriceInput() {
+  const item = active();
+  if (!item) return;
+  const input = document.getElementById("itemPriceInput");
+  if (item.price > 0) input.value = item.price.toLocaleString();
+  else input.value = "";
+}
+
 
 function setMethod(m) {
   const item = active();
@@ -325,7 +345,7 @@ function renderDetail() {
   document.getElementById("itemDetail").style.display = item ? "block" : "none";
   if (!item) return;
   document.getElementById("detailName").textContent = item.name;
-  document.getElementById("itemPriceInput").value = item.price || "";
+  document.getElementById("itemPriceInput").value = item.price > 0 ? item.price.toLocaleString() : "";
   updateTabStates();
   setMethod(activeMethod);
   renderTierBar(item);
@@ -563,7 +583,6 @@ function updateTierOptions() {
     tierSelect.appendChild(option);
   }
 }
-
 function applyTheme(dark) {
   document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
   document.getElementById("themeLabel").textContent = dark ? "Light mode" : "Dark mode";
