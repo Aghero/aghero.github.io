@@ -314,7 +314,7 @@ function renderItemList() {
   const el = document.getElementById("itemList");
   if (!items.length) {
     el.innerHTML =
-      '<div style="font-size:12px;color:var(--color-text-secondary);padding:4px 0">No items yet.</div>';
+      '<div style="font-size:12px;color:var(-color-text-secondary);padding:4px 0">No items yet.</div>';
     return;
   }
   const slots = [...new Set(items.map((i) => i.slot))];
@@ -361,7 +361,7 @@ function renderTierBar(item) {
     const d = document.createElement("div");
     if (i > cap) {
       d.className = "tier-pip capped";
-      d.textContent = "--";
+      d.textContent = "-";
       d.title = `Classification ${item.cls} cap: T${cap}`;
     } else {
       d.className =
@@ -470,10 +470,10 @@ function doFusion(success) {
     );
     if (item.tier === 0) {
       consumeItems(item, 1);
-      addLog(item, "--", "n", "One item destroyed", []);
+      addLog(item, "-", "n", "One item destroyed", []);
     } else {
       item.tier = Math.max(0, item.tier - 1);
-      addLog(item, "--", "n", `One item dropped to T${item.tier}`, []);
+      addLog(item, "-", "n", `One item dropped to T${item.tier}`, []);
     }
   }
   refresh();
