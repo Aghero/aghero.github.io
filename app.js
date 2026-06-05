@@ -38,6 +38,7 @@ function createItem(slot, cls, tier, price) {
     successes: 0,
     fails: 0,
     log: [],
+    method: "fusion",
   };
 }
 function active() {
@@ -99,7 +100,8 @@ function removeActiveItem() {
 
 function selectItem(id) {
   activeId = id;
-  activeMethod = "fusion";
+  const restored = items.find(i => i.id === id);
+  activeMethod = restored ? restored.method : "fusion";
   document.getElementById("core-chance").checked = false;
   document.getElementById("core-protect").checked = false;
   refresh();
@@ -126,6 +128,7 @@ function setMethod(method) {
   if (!item) return;
   if ((method === "convtransfer" || method === "convfusion") && item.cls !== 4) return;
   activeMethod = method;
+  if (item) item.method = method;
   document.querySelectorAll(".tab").forEach((t, i) => {
     t.classList.toggle("active", ["fusion", "convfusion", "transfer", "convtransfer"][i] === method);
   });
@@ -172,7 +175,7 @@ function updateFusionCosts() {
     `<strong>Merging 2 x T${item.tier} identical items to create a <b>T${item.tier + 1}</b> item</strong><br>` +
     `Success chance: <strong>${uc ? 65 : 50}%</strong><br>` +
     `Fail protection (Tier reduction/item destruction chance): <strong>${up ? "50%" : "100%"}</strong><br>` +
-    `Fee: <strong>${fmtFull(gold)} gold</strong> + <strong>100 Dust</strong> ${cores ? `+ <strong>${cores} core${cores > 1 ? "s" : ""}</strong>` : ""} + <strong>1 source item (T${item.tier})` +
+    `Fee: <strong>${fmtFull(gold)} gold</strong> + <strong>100 Dust</strong> ${cores ? `+ <strong>${cores} core${cores > 1 ? "s" : ""}</strong>` : ""} + <strong>1 source item (T${item.tier})</strong>` +
     itemCostLine(1, item.price);
 }
 
@@ -190,15 +193,10 @@ function updateConvergenceFusionCosts() {
     act.innerHTML = "";
     return;
   }
-  if (item.tier < 1) {
-    el.innerHTML = `<strong>Requires the source item to be at least <b>T1</b></strong>`;
-    act.innerHTML = "";
-    return;
-  }
   el.innerHTML =
     `<div class="note purple">Requires items of the same body slot and same tier. Source item gets consumed in the process. For items of classification 4 only. No cores needed. Always succeeds. </div>` +
     `<strong>Merging 2 x T${item.tier} items of the same body slot to create a <b>T${item.tier + 1}</b> item</strong><br>` +
-    `Fee: <strong>${fmtFull(CONVFUSION_GOLD[item.tier - 1])} gold</strong> + <strong>130 Dust</strong> + <strong>1 source item (T${item.tier})</strong>` +
+    `Fee: <strong>${fmtFull(CONVFUSION_GOLD[item.tier])} gold</strong> + <strong>130 Dust</strong> + <strong>1 source item (T${item.tier})</strong>` +
     itemCostLine(1, item.price);
   act.innerHTML = `<button class="btn guaranteed" onclick="doConvergenceFusion()">Convergence Transfer</button>`;
 }
@@ -294,7 +292,7 @@ function doFusion(success) {
 function doConvergenceFusion() {
   const item = active();
   if (!item || isCapped(item)) return;
-  const gold = CONVFUSION_GOLD[item.tier - 1];
+  const gold = CONVFUSION_GOLD[item.tier];
   item.gold += gold;
   item.dust += 130;
   consumeItems(item, 1);
@@ -424,7 +422,7 @@ function setTierManual(t) {
 function renderItemMetrics(item) {
   const total = item.gold + item.itemGold;
   document.getElementById("itemMetrics").innerHTML = `
-    <div class="metric"><div class="metric-label">Total gold</div><div class="metric-val gold" title="${fmtFull(total)} gold">${fmt(total)}</div><div class="metric-sub">fees ${fmt(item.gold)} + items ${fmt(item.itemGold)}</div></div>
+    <div class="metric"><div class="metric-label">Total gold</div><div class="metric-val gold" title="${fmtFull(total)} gold">${fmt(total)}</div><div class="metric-sub">fees: ${fmt(item.gold)} + cost of items: ${fmt(item.itemGold)}</div></div>
     <div class="metric"><div class="metric-label">Dust</div><div class="metric-val blue">${item.dust}</div></div>
     <div class="metric"><div class="metric-label">Cores</div><div class="metric-val blue">${item.cores}</div></div>
     <div class="metric"><div class="metric-label">Items used</div><div class="metric-val">${item.itemsUsed}</div></div>
@@ -452,7 +450,7 @@ function renderGlobalMetrics() {
   const successes = items.reduce((a, i) => a + i.successes, 0);
   const fails = items.reduce((a, i) => a + i.fails, 0);
   document.getElementById("globalMetrics").innerHTML = `
-    <div class="metric"><div class="metric-label">Total gold</div><div class="metric-val gold" title="${fmtFull(total)} gold">${fmt(total)}</div><div class="metric-sub">fees ${fmt(fees)} + items ${fmt(itemGold)}</div></div>
+    <div class="metric"><div class="metric-label">Total gold</div><div class="metric-val gold" title="${fmtFull(total)} gold">${fmt(total)}</div><div class="metric-sub">fees: ${fmt(item.gold)} + cost of items: ${fmt(itemGold)}</div></div>
     <div class="metric"><div class="metric-label">Dust</div><div class="metric-val blue">${dust.toLocaleString()}</div></div>
     <div class="metric"><div class="metric-label">Cores</div><div class="metric-val blue">${cores.toLocaleString()}</div></div>
     <div class="metric"><div class="metric-label">Items used</div><div class="metric-val">${itemsUsed.toLocaleString()}</div></div>
