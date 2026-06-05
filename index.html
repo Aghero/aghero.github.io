@@ -48,18 +48,14 @@
             <div>⚔️</div>
             Add an item on the left to start tracking
           </div>
-          <div class="item-detail" id="itemDetail" >
+          <div class="item-detail" id="itemDetail">
             <div class="section">
-              <div class="item-header">
-                <div>
-                  <div class="item-name-display" id="detailName"></div>
-                </div>
-                <button class="btn danger-sm" onclick="removeActiveItem()">✕ Remove</button>
-              </div>
-
               <div class="price-row">
-                <label>Source item price:</label>
-                <input type="text" id="itemPriceInput" placeholder="10k, 15kk" min="0" oninput="updateItemPrice()" onblur="formatItemPriceInput()" />
+                <label>Item:</label>
+                <input type="text" id="itemNameInput" placeholder="Item name" oninput="updateItemName()" />
+                <label>Price:</label>
+                <input type="text" id="itemPriceInput" placeholder="10k, 15kk" oninput="updateItemPrice()" onblur="formatItemPriceInput()" />
+                <button class="btn danger-sm" onclick="removeActiveItem()">✕ Remove</button>
               </div>
 
               <div class="tier-hint">Current tier of source item:</div>

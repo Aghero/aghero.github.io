@@ -26,6 +26,7 @@ function createItem(slot, cls, tier, price) {
   return {
     id: nextId++,
     name: `${slot}`,
+    defaultName: `${slot}`,
     slot,
     cls,
     tier: Math.min(tier, maxTier(cls)),
@@ -105,6 +106,14 @@ function selectItem(id) {
   document.getElementById("core-chance").checked = false;
   document.getElementById("core-protect").checked = false;
   refresh();
+}
+
+function updateItemName() {
+  const item = active();
+  if (!item) return;
+  const val = document.getElementById("itemNameInput").value.trim();
+  item.name = val || item.defaultName;
+  renderItemList();
 }
 
 function updateItemPrice() {
@@ -383,7 +392,7 @@ function renderDetail() {
   document.getElementById("emptyState").style.display = item ? "none" : "block";
   document.getElementById("itemDetail").style.display = item ? "block" : "none";
   if (!item) return;
-  document.getElementById("detailName").textContent = item.name;
+  document.getElementById("itemNameInput").value = item.name === item.defaultName ? item.defaultName : item.name;
   document.getElementById("itemPriceInput").value = item.price > 0 ? item.price.toLocaleString() : "";
   updateTabStates();
   setMethod(activeMethod);
@@ -450,7 +459,7 @@ function renderGlobalMetrics() {
   const successes = items.reduce((a, i) => a + i.successes, 0);
   const fails = items.reduce((a, i) => a + i.fails, 0);
   document.getElementById("globalMetrics").innerHTML = `
-    <div class="metric"><div class="metric-label">Total gold</div><div class="metric-val gold" title="${fmtFull(total)} gold">${fmt(total)}</div><div class="metric-sub">fees: ${fmt(item.gold)} + cost of items: ${fmt(itemGold)}</div></div>
+    <div class="metric"><div class="metric-label">Total gold</div><div class="metric-val gold" title="${fmtFull(total)} gold">${fmt(total)}</div><div class="metric-sub">fees: ${fmt(fees)} + cost of items: ${fmt(itemGold)}</div></div>
     <div class="metric"><div class="metric-label">Dust</div><div class="metric-val blue">${dust.toLocaleString()}</div></div>
     <div class="metric"><div class="metric-label">Cores</div><div class="metric-val blue">${cores.toLocaleString()}</div></div>
     <div class="metric"><div class="metric-label">Items used</div><div class="metric-val">${itemsUsed.toLocaleString()}</div></div>

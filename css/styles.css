@@ -417,7 +417,6 @@ h2 {
 }
 
 .price-row {
-  max-width: 360px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -425,6 +424,17 @@ h2 {
   background: var(--color-background-secondary);
   border-radius: var(--border-radius-md);
   padding: 8px 10px;
+  flex-wrap: wrap;
+}
+
+#itemNameInput {
+  flex: 2;
+  min-width: 120px;
+}
+
+#itemPriceInput {
+  flex: 1;
+  min-width: 80px;
 }
 
 .price-row label {
@@ -636,6 +646,7 @@ h2 {
   color: #e24b4a;
   padding: 4px 10px;
   font-size: 11px;
+  display: inline;
 }
 
 .btn.danger-sm:hover {
