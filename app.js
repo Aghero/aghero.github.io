@@ -76,10 +76,6 @@ function isCapped(item) {
 function blockedMsg(item) {
   return `<strong>For item of a classification ${item.cls} max tier (T${maxTier(item.cls)}) reached.</strong> <br> No further upgrades available.`;
 }
-function itemCostLine(count, price) {
-  if (!price) return "";
-  return `<div class="item-cost-line">+ ${count} item${count > 1 ? "s" : ""} × ${fmtFull(price)} = <strong style="color:#BA7517">${fmtFull(count * price)} gold</strong></div>`;
-}
 
 function addItem() {
   const slot = document.getElementById("newSlot").value;
@@ -184,8 +180,7 @@ function updateFusionCosts() {
     `<strong>Merging 2 x T${item.tier} identical items to create a <b>T${item.tier + 1}</b> item</strong><br>` +
     `Success chance: <strong>${uc ? 65 : 50}%</strong><br>` +
     `Fail protection (Tier reduction/item destruction chance): <strong>${up ? "50%" : "100%"}</strong><br>` +
-    `Fee: <strong>${fmtFull(gold)} gold</strong> + <strong>100 Dust</strong> ${cores ? `+ <strong>${cores} core${cores > 1 ? "s" : ""}</strong>` : ""} + <strong>1 source item (T${item.tier})</strong>` +
-    itemCostLine(1, item.price);
+    `Fee: <strong>${fmtFull(gold)} gold + 1 source item (T${item.tier}) x ${fmtFull(item.price)} gold + 100 Dust ${cores ? `+ ${cores} core${cores > 1 ? "s" : ""}` : ""}</strong>` ;
 }
 
 function updateConvergenceFusionCosts() {
@@ -205,8 +200,7 @@ function updateConvergenceFusionCosts() {
   el.innerHTML =
     `<div class="note purple">Requires items of the same body slot and same tier. Source item gets consumed in the process. For items of classification 4 only. No cores needed. Always succeeds. </div>` +
     `<strong>Merging 2 x T${item.tier} items of the same body slot to create a <b>T${item.tier + 1}</b> item</strong><br>` +
-    `Fee: <strong>${fmtFull(CONVFUSION_GOLD[item.tier])} gold</strong> + <strong>130 Dust</strong> + <strong>1 source item (T${item.tier})</strong>` +
-    itemCostLine(1, item.price);
+    `Fee: <strong>${fmtFull(CONVFUSION_GOLD[item.tier])} gold + 1 source item (T${item.tier}) x ${fmtFull(item.price)} gold + 130 Dust</strong>`;
   act.innerHTML = `<button class="btn guaranteed" onclick="doConvergenceFusion()">Convergence Transfer</button>`;
 }
 
@@ -227,13 +221,11 @@ function updateTransferCosts() {
   }
   const cores = TRANSFER_CORES[item.tier - 2];
   const gold = (TRANSFER_GOLD[item.cls] && TRANSFER_GOLD[item.cls][item.tier - 2]) || 0;
-  const extrap = item.tier >= 8 ? " <em>(extrapolated)</em>" : "";
   const goldStr = gold > 0 ? `<strong>${fmtFull(gold)} gold</strong> + ` : "<em>no gold fee</em> + ";
   el.innerHTML =
     `<div class="note purple">Requires the target item to be <b> T0</b>. Both items have to be of the same classification. It transfers the source item's Tier - 1. Source item gets consumed in the process. Always succeeds.</div>` +
     `<strong>Source item T${item.tier} consumed. Target item becomes <b>T${item.tier - 1}</b></strong><br>` +
-    `Fee: ${goldStr}<strong>${cores} core${cores > 1 ? "s" : ""}</strong> + <strong>100 Dust</strong> + <strong>1 source item</strong>${extrap}` +
-    itemCostLine(1, item.price);
+    `Fee: ${goldStr}<strong>${cores} core${cores > 1 ? "s" : ""} + 1 source item x ${fmtFull(item.price)} gold + 100 Dust</strong>`;
   act.innerHTML = `<button class="btn guaranteed" onclick="doTransfer()">Transfer</button>`;
 }
 
@@ -261,8 +253,7 @@ function updateConvTransferCosts() {
   el.innerHTML =
     `<div class="note purple">Transfers the Tier of the source item without Tier loss. Allows for a transfer from different body slots. For items of classification 4 only. Source item gets consumed in the process. Always succeeds.</div>` +
     `<strong>Source item T${item.tier} consumed. Target item becomes <b>T${item.tier}</b></strong><br>` +
-    `Fee: <strong>${fmtFull(CONVTRANSFER_GOLD[item.tier - 1])} gold</strong> + <strong>${CONVTRANSFER_CORES[item.tier - 1]} core${CONVTRANSFER_CORES[item.tier - 1] > 1 ? "s" : ""}</strong> + <strong>160 Dust</strong> + <strong>1 source item</strong>` +
-    itemCostLine(1, item.price);
+    `Fee: <strong>${fmtFull(CONVTRANSFER_GOLD[item.tier - 1])} gold + 1 source item x ${fmtFull(item.price)} gold + ${CONVTRANSFER_CORES[item.tier - 1]} core${CONVTRANSFER_CORES[item.tier - 1] > 1 ? "s" : ""} + 160 Dust</strong>`;
   note.innerHTML = "";
   act.innerHTML = `<button class="btn conv-tr" onclick="doConvTransfer()">Convergence Transfer</button>`;
 }
